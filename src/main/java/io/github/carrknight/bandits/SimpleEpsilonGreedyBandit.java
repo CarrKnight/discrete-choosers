@@ -11,8 +11,6 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
     /**
      * An array describing all the options available to the bandit algorithm
      *
-     * @param rewardExtractor  transformer from R to double
-     * @param optionsAvailable what kind of options are available
      * @param randomSeed       random seed
      * @param epsilon exploration rate
      */
@@ -28,7 +26,7 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
 
 
 
-    private static Integer[] buildOptionsArray(int numberOfOptions){
+    static Integer[] buildOptionsArray(int numberOfOptions){
         Integer[] options = new Integer[numberOfOptions];
         for(int i=0; i<options.length; i++)
             options[i]=i;

@@ -6,24 +6,23 @@ import org.junit.Test;
 
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class EpsilonGreedyBanditTest
-{
+public class UCB1BanditAlgorithmTest {
 
 
-
-    //10 options, the last is the best; can the epsilon greedy find it?
+    //10 options, the last is the best; can UCB1 find it?
     @Test
     public void tenOptions()
     {
 
 
-        SimpleEpsilonGreedyBandit bandit =
-                new SimpleEpsilonGreedyBandit(
+        SimpleUCBBanditAlgorithm bandit =
+                new SimpleUCBBanditAlgorithm(
                         10,
                         System.currentTimeMillis(),
-                        .2
+                        0,10
                 );
 
 
@@ -33,17 +32,21 @@ public class EpsilonGreedyBanditTest
             int arm = bandit.getLastChoice();
             double reward = random.nextGaussian() / 2 + arm;
             bandit.updateAndChoose(
-                    new SimpleObservation(arm,reward)
+                    new SimpleObservation(arm, reward)
             );
         }
 
-        //now you should be playing most
-        bandit.setEpsilon(0);
-
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
 
         System.out.println(bandit.getBanditState());
+        for(int i=0; i<9; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
+                               bandit.getBanditState().getNumberOfObservations(i));
+        }
+
     }
+
 
 
     //exponential moving average should have little trouble adapting to changes in the reward
@@ -51,12 +54,11 @@ public class EpsilonGreedyBanditTest
     public void suddenChange()
     {
 
-
-        SimpleEpsilonGreedyBandit bandit =
-                new SimpleEpsilonGreedyBandit(
+        SimpleUCBBanditAlgorithm bandit =
+                new SimpleUCBBanditAlgorithm(
                         10,
                         System.currentTimeMillis(),
-                        .8 //explore a lot
+                        -200,200
                 );
 
         bandit.setAverager(new ExponentialMovingAverager(.4));
@@ -72,12 +74,16 @@ public class EpsilonGreedyBanditTest
         }
 
         //now you should be playing best
-        bandit.setEpsilon(0);
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
-        System.out.println(bandit.getBanditState());
+        for(int i=0; i<9; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
+                               bandit.getBanditState().getNumberOfObservations(i));
+        }
 
         //but now reverse rewards!
-        for (int i = 0; i < 100; i++) {
+        //NOTICE IT TAKES A LOT LONGER! UCB1 isn't that adaptive
+        for (int i = 0; i < 1000; i++) {
             int arm = bandit.getLastChoice();
             double reward = random.nextGaussian() / 2 - 20 * arm;
             bandit.updateAndChoose(
@@ -85,10 +91,14 @@ public class EpsilonGreedyBanditTest
             );
         }
 
+
         System.out.println(bandit.getBanditState());
 
         //should have switched!
-        assertEquals(0, (int)bandit.skipRoundAndChoose());
+        for(int i=1; i<10; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(0) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+        }
 
     }
 

@@ -8,22 +8,23 @@ import java.util.Random;
 
 import static org.junit.Assert.*;
 
-public class EpsilonGreedyBanditTest
-{
+public class SoftmaxBanditAlgorithmTest {
 
 
 
-    //10 options, the last is the best; can the epsilon greedy find it?
+
+
+    //10 options, the last is the best; can the SOFTMAX find it?
     @Test
-    public void tenOptions()
-    {
+    public void tenOptions() {
 
 
-        SimpleEpsilonGreedyBandit bandit =
-                new SimpleEpsilonGreedyBandit(
+        //you need to add a high initial expectation if you don't want to get stuck!
+        SimpleSoftmaxBanditAlgorithm bandit =
+                new SimpleSoftmaxBanditAlgorithm(
                         10,
                         System.currentTimeMillis(),
-                        .2
+                        100
                 );
 
 
@@ -33,16 +34,21 @@ public class EpsilonGreedyBanditTest
             int arm = bandit.getLastChoice();
             double reward = random.nextGaussian() / 2 + arm;
             bandit.updateAndChoose(
-                    new SimpleObservation(arm,reward)
+                    new SimpleObservation(arm, reward)
             );
         }
 
-        //now you should be playing most
-        bandit.setEpsilon(0);
-
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
-
+        //you should assume the bandit is the best
+        //and you played the best the most
         System.out.println(bandit.getBanditState());
+
+        for(int i=0; i<9; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
+                               bandit.getBanditState().getNumberOfObservations(i));
+        }
+
     }
 
 
@@ -52,11 +58,14 @@ public class EpsilonGreedyBanditTest
     {
 
 
-        SimpleEpsilonGreedyBandit bandit =
-                new SimpleEpsilonGreedyBandit(
+        SimpleSoftmaxBanditAlgorithm bandit =
+                new SimpleSoftmaxBanditAlgorithm(
                         10,
                         System.currentTimeMillis(),
-                        .8 //explore a lot
+                        0,
+                        23163.6, //number that will drop to 1 after 1000 steps
+                        .99
+
                 );
 
         bandit.setAverager(new ExponentialMovingAverager(.4));
@@ -72,9 +81,13 @@ public class EpsilonGreedyBanditTest
         }
 
         //now you should be playing best
-        bandit.setEpsilon(0);
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
         System.out.println(bandit.getBanditState());
+        for(int i=0; i<9; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
+                               bandit.getBanditState().getNumberOfObservations(i));
+        }
 
         //but now reverse rewards!
         for (int i = 0; i < 100; i++) {
@@ -88,9 +101,12 @@ public class EpsilonGreedyBanditTest
         System.out.println(bandit.getBanditState());
 
         //should have switched!
-        assertEquals(0, (int)bandit.skipRoundAndChoose());
-
+        for(int i=1; i<10; i++) {
+            assertTrue(bandit.getBanditState().getAverageRewardObserved(0) >
+                               bandit.getBanditState().getAverageRewardObserved(i));
+        }
     }
+
 
 
 }

@@ -20,6 +20,11 @@ public class BanditState {
      */
     private final int[] observationsMade;
 
+    /**
+     * the number of observations made (this ought to be just the sum of each individual item in the array)
+     */
+    private int numberOfObservations = 0;
+
 
     public BanditState(int numberOfOptions, double initialAverageReward)
     {
@@ -67,6 +72,8 @@ public class BanditState {
                                            rewardObserved);
 
         observationsMade[index]++;
+        numberOfObservations++;
+        assert numberOfObservations == Arrays.stream(observationsMade).sum();
 
 
     }
@@ -99,5 +106,14 @@ public class BanditState {
         }
         sb.append('}');
         return sb.toString();
+    }
+
+    /**
+     * Getter for property 'numberOfObservations'.
+     *
+     * @return Value for property 'numberOfObservations'.
+     */
+    public int getNumberOfObservations() {
+        return numberOfObservations;
     }
 }

@@ -15,6 +15,10 @@ dependencies {
     //guava. Useful for PreConditions and sometimes specialized collections
     compile group: 'com.google.guava', name: 'guava', version: '11.0.2'
 
+    //kd tree
+    compile fileTree(dir: 'libs/rednaxela', include: '*.jar')
+
+
     //testing
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "org.mockito:mockito-all:1.9.5"

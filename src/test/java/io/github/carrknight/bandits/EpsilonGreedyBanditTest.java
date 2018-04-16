@@ -40,7 +40,7 @@ public class EpsilonGreedyBanditTest
         //now you should be playing most
         bandit.setEpsilon(0);
 
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
+        assertEquals(9, (int)bandit.updateAndChoose(null));
 
         System.out.println(bandit.getBanditState());
     }
@@ -73,7 +73,7 @@ public class EpsilonGreedyBanditTest
 
         //now you should be playing best
         bandit.setEpsilon(0);
-        assertEquals(9, (int)bandit.skipRoundAndChoose());
+        assertEquals(9, (int)bandit.updateAndChoose(null));
         System.out.println(bandit.getBanditState());
 
         //but now reverse rewards!
@@ -88,7 +88,7 @@ public class EpsilonGreedyBanditTest
         System.out.println(bandit.getBanditState());
 
         //should have switched!
-        assertEquals(0, (int)bandit.skipRoundAndChoose());
+        assertEquals(0, (int)bandit.updateAndChoose(null));
 
     }
 

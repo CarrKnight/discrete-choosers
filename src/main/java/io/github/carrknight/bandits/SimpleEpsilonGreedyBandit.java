@@ -34,7 +34,7 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
 
 
 
-    static Integer[] buildOptionsArray(int numberOfOptions){
+    static public Integer[] buildOptionsArray(int numberOfOptions){
         Integer[] options = new Integer[numberOfOptions];
         for(int i=0; i<options.length; i++)
             options[i]=i;

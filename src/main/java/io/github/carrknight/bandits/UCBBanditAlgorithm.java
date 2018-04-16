@@ -3,6 +3,7 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.utils.DiscreteChoosersUtilities;
 import io.github.carrknight.utils.UtilityFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,28 +100,22 @@ public class UCBBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorit
         }
         //everything has been played at least once, proceed with standard UCB1 exploitation
         else {
-            ArrayList<Integer> candidates = new ArrayList<>();
-            double currentMax = Double.NEGATIVE_INFINITY;
-            for (int slotMachine = 0; slotMachine < numberOfOptions; slotMachine++) {
-                double ucb = upperConfidenceBound(
-                        state.getAverageRewardObserved(slotMachine),
-                        state.getNumberOfObservations(slotMachine),
-                        state.getNumberOfObservations()
-                );
-                if (ucb > currentMax) {
-                    candidates.clear();
-                    candidates.add(slotMachine);
-                    currentMax = ucb;
-                } else if (ucb == currentMax)
-                    candidates.add(slotMachine);
 
-            }
 
-            assert candidates.size() >= 1;
+            Integer bestIndex = DiscreteChoosersUtilities.getBestOption(
+                    optionsAvailable.values(),
+                    slotMachine -> upperConfidenceBound(
+                            state.getAverageRewardObserved(slotMachine),
+                            state.getNumberOfObservations(slotMachine),
+                            state.getNumberOfObservations()
+                    ),
+                    getRandomizer(),
+                    Double.NEGATIVE_INFINITY
+            );
+            assert bestIndex != null;
             return
-                    optionsAvailable.inverse().get(
-                            candidates.get(getRandomizer().nextInt(candidates.size()))
-                    );
+                    optionsAvailable.inverse().get(bestIndex);
+
         }
 
     }

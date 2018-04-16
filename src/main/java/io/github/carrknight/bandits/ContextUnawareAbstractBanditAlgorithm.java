@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.SplittableRandom;
-import java.util.function.Function;
 
 /**
  * complicated name, simple class: it's an abstract class tagging and implementing the basics
@@ -137,7 +136,8 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
             Observation<O, R, Object> observation,
             Observation<O, R, Object>... additionalObservations) {
         //learn from the last observation
-        learnFromObservation(observation);
+        if(observation!=null)
+            learnFromObservation(observation);
         //decide whether to learn from additional observations
         for (Observation<O, R, Object> additional : additionalObservations) {
             Observation<O, R, Object> filtered =
@@ -158,42 +158,12 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     }
 
 
-    /**
-     * this method is similar to updateAndChoose but should be used whenever the action suggested the previous step
-     * was not taken
-     * (say, because of some malfunction or because you didn't want to follow through on the suggestion).
-     * It does the following:
-     * * may act on additional information
-     *
-     * @param additionalObservations additional action-rewards observed (by imitation or whatever)
-     * @return T chosen to play next
-     */
-    @SafeVarargs
-    @Override
-    public final O skipRoundAndChoose(Observation<O, R, Object>... additionalObservations) {
-
-        //do we want to learn from the additional observations?
-        for (Observation<O, R, Object> additional : additionalObservations) {
-            Observation<O, R, Object> filtered =
-                    imitationPolicy.decideOnAdditionalInformation(additional,
-                                                                  banditState);
-            if(filtered!=null)
-                learnFromObservation(filtered);
-
-        }
-        //now pick new option
-        lastChoice = choose(banditState,
-                            optionsAvailable,
-                            null,
-                            lastChoice);
-        return lastChoice;
-    }
 
     private void learnFromObservation(Observation<O, R, Object> observation) {
         int observationIndex = optionsAvailable.get(observation.getChoiceMade());
         double rewardObtained = rewardExtractor.extractUtility(
                 observation.getChoiceMade(),
-                observation.getRewardObserved(),
+                observation.getResultObserved(),
                 null);
         banditState.observeNewReward(rewardObtained,observationIndex,averager);
     }
@@ -224,6 +194,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     public O getLastChoice() {
         return lastChoice;
     }
+
 
     /**
      * Getter for property 'banditState'.

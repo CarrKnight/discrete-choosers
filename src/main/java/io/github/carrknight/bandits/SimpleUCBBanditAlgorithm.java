@@ -1,5 +1,9 @@
 package io.github.carrknight.bandits;
 
+import io.github.carrknight.utils.UtilityFunction;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.SplittableRandom;
 
 /**
@@ -21,7 +25,7 @@ public class SimpleUCBBanditAlgorithm extends UCBBanditAlgorithm<Integer, Double
             long randomSeed, double sigma, double minimumRewardExpected,
             double maximumRewardExpected) {
         super(
-                aDouble -> aDouble,
+                (optionTaken, experimentResult, contextObject) -> experimentResult,
                 SimpleEpsilonGreedyBandit.buildOptionsArray(numberOfOptions),
                 0,
                 new SplittableRandom(randomSeed),

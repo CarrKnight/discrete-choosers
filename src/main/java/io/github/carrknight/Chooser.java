@@ -39,6 +39,7 @@ public interface Chooser<O,R,C> {
      * (say, because of some malfunction or because you didn't want to follow through on the suggestion).
      * It does the following:
      *     * may act on additional information
+     *     * Picks a new O for next step and return it
      * @param additionalObservations additional action-rewards observed (by imitation or whatever)
      * @return T chosen to play next
      */

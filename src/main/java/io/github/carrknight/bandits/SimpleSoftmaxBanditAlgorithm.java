@@ -1,5 +1,9 @@
 package io.github.carrknight.bandits;
 
+import io.github.carrknight.utils.UtilityFunction;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.SplittableRandom;
 import java.util.function.Function;
 
@@ -19,7 +23,14 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
     public SimpleSoftmaxBanditAlgorithm(int numberOfOptions,
                                      long randomSeed) {
         super(
-                aDouble -> aDouble,
+                new UtilityFunction<Integer, Double, Object>() {
+                    @Override
+                    public double extractUtility(
+                            @NotNull Integer optionTaken, @NotNull Double experimentResult,
+                            @Nullable Object contextObject) {
+                        return experimentResult;
+                    }
+                },
                 SimpleEpsilonGreedyBandit.buildOptionsArray(numberOfOptions),
                 0,
                 new SplittableRandom(randomSeed),
@@ -38,8 +49,14 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
                                         long randomSeed,
                                         double initialExpectedReward) {
         super(
-                aDouble -> aDouble,
-                SimpleEpsilonGreedyBandit.buildOptionsArray(numberOfOptions),
+                new UtilityFunction<Integer, Double, Object>() {
+                    @Override
+                    public double extractUtility(
+                            @NotNull Integer optionTaken, @NotNull Double experimentResult,
+                            @Nullable Object contextObject) {
+                        return experimentResult;
+                    }
+                },                SimpleEpsilonGreedyBandit.buildOptionsArray(numberOfOptions),
                 initialExpectedReward,
                 new SplittableRandom(randomSeed),
                 1,
@@ -61,7 +78,14 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
                                         double initialTemperature,
                                         double temperatureDecay) {
         super(
-                aDouble -> aDouble,
+                new UtilityFunction<Integer, Double, Object>() {
+                    @Override
+                    public double extractUtility(
+                            @NotNull Integer optionTaken, @NotNull Double experimentResult,
+                            @Nullable Object contextObject) {
+                        return experimentResult;
+                    }
+                },
                 SimpleEpsilonGreedyBandit.buildOptionsArray(numberOfOptions),
                 initialExpectedReward,
                 new SplittableRandom(randomSeed),

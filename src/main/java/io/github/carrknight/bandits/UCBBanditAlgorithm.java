@@ -3,6 +3,7 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.utils.UtilityFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,19 +22,30 @@ public class UCBBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorit
 
 
     public UCBBanditAlgorithm(
-            @NotNull Function<R, Double> rewardExtractor,
+            @NotNull UtilityFunction<O,R,Object > rewardExtractor,
             @NotNull O[] optionsAvailable,
             double initialExpectedReward,
             SplittableRandom randomizer,
             double minimumRewardExpected,
             double maximumRewardExpected, double sigma) {
-        super(rewardExtractor.andThen(reward -> {
-                  //rescales rewards between 0 and 1!
-                  reward = Math.min(Math.max(reward, minimumRewardExpected), maximumRewardExpected);
-                  return (reward - minimumRewardExpected) / (maximumRewardExpected - minimumRewardExpected);
-              }),
+        super(
+                new UtilityFunction<O, R, Object>() {
+                    @Override
+                    public double extractUtility(
+                            @NotNull O optionTaken, @NotNull R experimentResult, @Nullable Object contextObject) {
+                        //rescales rewards between 0 and 1!
+                        double reward = rewardExtractor.extractUtility(optionTaken,
+                                                                       experimentResult,
+                                                                       contextObject);
+                        reward = Math.min(Math.max(reward, minimumRewardExpected), maximumRewardExpected);
+                        return (reward - minimumRewardExpected) / (maximumRewardExpected - minimumRewardExpected);
 
-              optionsAvailable, initialExpectedReward, randomizer);
+                    }
+                }
+
+                ,
+
+                optionsAvailable, initialExpectedReward, randomizer);
         this.sigma = sigma;
     }
 

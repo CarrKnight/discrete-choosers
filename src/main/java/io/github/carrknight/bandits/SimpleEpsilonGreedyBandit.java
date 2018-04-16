@@ -1,6 +1,8 @@
 package io.github.carrknight.bandits;
 
+import io.github.carrknight.utils.UtilityFunction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -17,8 +19,14 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
     public SimpleEpsilonGreedyBandit(int numberOfOptions,
                                      long randomSeed, double epsilon) {
         super(
-                aDouble -> aDouble,
-                buildOptionsArray(numberOfOptions),
+                new UtilityFunction<Integer, Double, Object>() {
+                    @Override
+                    public double extractUtility(
+                            @NotNull Integer optionTaken, @NotNull Double experimentResult,
+                            @Nullable Object contextObject) {
+                        return experimentResult;
+                    }
+                },                buildOptionsArray(numberOfOptions),
                 randomSeed,
                 epsilon);
     }

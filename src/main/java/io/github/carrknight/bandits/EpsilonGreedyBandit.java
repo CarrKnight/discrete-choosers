@@ -3,6 +3,7 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.utils.UtilityFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +26,7 @@ public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgori
      * @param epsilon
      */
     public EpsilonGreedyBandit(
-            @NotNull Function<R, Double> rewardExtractor,
+            @NotNull UtilityFunction<O,R,Object> rewardExtractor,
             @NotNull O[] optionsAvailable, long randomSeed, double epsilon) {
         super(rewardExtractor, optionsAvailable, randomSeed);
         Preconditions.checkArgument(epsilon>=0, "espilon cannot be lower than 0");

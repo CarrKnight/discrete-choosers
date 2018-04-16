@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
 import io.github.carrknight.utils.BoltzmannDistribution;
+import io.github.carrknight.utils.UtilityFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +26,7 @@ public class SoftmaxBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlg
 
 
     public SoftmaxBanditAlgorithm(
-            @NotNull Function<R, Double> rewardExtractor, @NotNull O[] optionsAvailable, double initialExpectedReward,
+            @NotNull UtilityFunction<O, R,Object> rewardExtractor, @NotNull O[] optionsAvailable, double initialExpectedReward,
             SplittableRandom randomizer,
             double temperature,
             Function<Double, Double> temperatureUpdater) {

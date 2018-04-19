@@ -21,31 +21,43 @@
 package io.github.carrknight.heatmaps.regression.distance;
 
 /**
- * 1/rbfKernel
- * Created by carrknight on 8/24/16.
+ * Takes a regression distance and makes it into RBF kernel. Notice that in reality we probably want 1/this for distance
+ * since Kernels are a measure of similarity
+ * Created by carrknight on 8/14/16.
  */
-public class RBFFeatureDistance implements FeatureDistance
+public class RBFKernel implements FeatureKernel
 {
 
 
-    private final RBFDistance delegate;
 
+    private double bandwidth;
 
-    public RBFFeatureDistance(double bandwidth) {
-        this.delegate = new RBFDistance(bandwidth);
+    public RBFKernel(double bandwidth) {
+        this.bandwidth = bandwidth;
     }
 
 
     @Override
-    public double distance(double firstObservation, double secondObservation) {
-        return delegate.distance(firstObservation, secondObservation);
+    public double similarity(double firstObservation, double secondObservation) {
+        double distance = firstObservation - secondObservation;
+        return Math.exp(- distance*distance/(bandwidth));
+    }
+
+
+    /**
+     * utility method to use when you already have a difference and you know you will use RBF
+     * @param difference
+     * @return
+     */
+    public double transform(double difference){
+        return  Math.exp(- difference*difference/(bandwidth));
     }
 
     public double getBandwidth() {
-        return delegate.getBandwidth();
+        return bandwidth;
     }
 
     public void setBandwidth(double bandwidth) {
-        delegate.setBandwidth(bandwidth);
+        this.bandwidth = bandwidth;
     }
 }

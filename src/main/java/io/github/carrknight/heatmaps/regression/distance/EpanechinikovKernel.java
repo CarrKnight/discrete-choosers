@@ -23,7 +23,7 @@ package io.github.carrknight.heatmaps.regression.distance;
 /**
  * Created by carrknight on 9/2/16.
  */
-public class EpanechinikovKernel implements FeatureDistance {
+public class EpanechinikovKernel implements FeatureKernel {
 
     private double bandwidth;
 
@@ -33,7 +33,7 @@ public class EpanechinikovKernel implements FeatureDistance {
 
 
     @Override
-    public double distance(double firstObservation, double secondObservation) {
+    public double similarity(double firstObservation, double secondObservation) {
         double distance = firstObservation-secondObservation;
         return  Math.max(.75 * (1- distance*distance/bandwidth),0);
 

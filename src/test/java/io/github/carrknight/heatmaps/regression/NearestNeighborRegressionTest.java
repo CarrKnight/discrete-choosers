@@ -36,7 +36,7 @@ public class NearestNeighborRegressionTest {
                             }
                         },
                         new double[]{1,1},
-                        new AbsoluteFeatureDistance(0),
+                        new AbsoluteFeatureDistance(0), //this bandwitdh gets ignored
                         1
 
 
@@ -63,11 +63,18 @@ public class NearestNeighborRegressionTest {
         assertEquals(regression.predict(new double[]{3,3}),1,.001);
         assertEquals(regression.predict(new double[]{6,6}),100,.001);
         assertEquals(regression.predict(new double[]{30,30}),100,.001);
+        assertEquals(regression.predict(new double[]{3,10}),100,.001);
 
 
 
 
 
+        //change bandwidths: stop caring about second dimension
+        ((NearestNeighborRegression<Point2D, Double, Double>) regression).setBandwidths(
+                new double[]{1,1000000}
+        );
+        assertEquals(regression.predict(new double[]{0,0}),1,.001);
+        assertEquals(regression.predict(new double[]{3,10}),1,.001); //this used to be 1
 
     }
 

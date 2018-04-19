@@ -76,12 +76,7 @@ public abstract class FeatureBasedRegression<O,R,C> implements OnlineRegression<
 
 
         //never bother if any feature is NaN
-        for (double feature : x) {
-            if(!Double.isFinite(feature))
-                return;
-        }
-        //don't bother if Y is NaN either
-        if(!Double.isFinite(y))
+        if(!NumericalRegression.isValidInput(x, y))
             return;
 
         observe(y, x);

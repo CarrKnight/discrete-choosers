@@ -1,7 +1,7 @@
 package io.github.carrknight.imitators;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,12 +47,12 @@ public class ExploreExplotImitateState<O,R,C> {
     /**
      * choose the new favorite in lieu of this new piece of information (uses new context to judge old favorite)
      * @param observation the observation made
-     * @param utilityFunction the utility function
+     * @param rewardFunction the utility function
      * @return the new favorite
      */
     public ExploreExplotImitateState<O,R,C> resolve(
             @NotNull Observation<O,R,C> observation,
-            @NotNull UtilityFunction<O,R,C> utilityFunction
+            @NotNull RewardFunction<O,R,C> rewardFunction
     ){
         //if the previous option has no result (meaning that we must have just initialized, return the new observation)
         if(favoriteResult == null)
@@ -68,16 +68,16 @@ public class ExploreExplotImitateState<O,R,C> {
                                                    observation.getResultObserved());
 
         //get new reward
-        double newReward = utilityFunction.extractUtility(observation.getChoiceMade(),
-                                                          observation.getResultObserved(),
-                                                          observation.getContext());
+        double newReward = rewardFunction.extractUtility(observation.getChoiceMade(),
+                                                         observation.getResultObserved(),
+                                                         observation.getContext());
 
 
 
         //get old reward
-        double currentReward = utilityFunction.extractUtility(favoriteOption,
-                                                              favoriteResult,
-                                                              observation.getContext());
+        double currentReward = rewardFunction.extractUtility(favoriteOption,
+                                                             favoriteResult,
+                                                             observation.getContext());
 
         //pick option with best reward
         if(newReward > currentReward)

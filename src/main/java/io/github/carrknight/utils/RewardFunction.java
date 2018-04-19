@@ -6,10 +6,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * any function that maps a (option,reward object, context) tuple to a double
  * @param <O> class of options available
- * @param <R> reward object (the output of an experiment; usually)
+ * @param <R> result object (the output of an experiment; usually)
  * @param <C> context object
  */
-public interface UtilityFunction<O,R,C> {
+public interface RewardFunction<O,R,C> {
 
 
 

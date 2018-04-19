@@ -1,10 +1,8 @@
 package io.github.carrknight.heatmaps.regression;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.heatmaps.regression.distance.FeatureDistance;
 import io.github.carrknight.heatmaps.regression.distance.FeatureKernel;
 
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.function.Function;
 
@@ -29,7 +27,7 @@ public class KernelRegression<O,R,C> extends FeatureBasedRegression<O, R, C> {
 
     @Override
     public void observe(Double y, double[] x) {
-        regression.observe(y, x);
+        regression.observe(x, y);
     }
 
     @Override

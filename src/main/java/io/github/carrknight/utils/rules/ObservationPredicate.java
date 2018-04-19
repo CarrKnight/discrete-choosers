@@ -1,7 +1,7 @@
 package io.github.carrknight.utils.rules;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 
 import java.util.SplittableRandom;
 
@@ -19,14 +19,14 @@ public interface ObservationPredicate<O,R,C>
      *
      * @param lastObservation
      * @param currentChoice
-     * @param utilityFunction utility function
+     * @param rewardFunction utility function
      * @param random
      * @return true if the agent should "explore"
      */
     public boolean shouldExplore(
             Observation<O,R,C> lastObservation,
             O currentChoice,
-            UtilityFunction<O,R,C> utilityFunction,
+            RewardFunction<O,R,C> rewardFunction,
             SplittableRandom random,
             Observation<O,R,C>... additionalObservations
     );

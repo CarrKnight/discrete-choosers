@@ -10,7 +10,7 @@ import java.util.function.Function;
  * simple utility function that ignores context and option picked and just focuses on the reward object
  * @param <R> the class of the reward object
  */
-public abstract class SimpleUtilityFunction<R> implements UtilityFunction<Object, R,Object>,
+public abstract class SimpleRewardFunction<R> implements RewardFunction<Object, R,Object>,
         Function<R,Double> {
 
 

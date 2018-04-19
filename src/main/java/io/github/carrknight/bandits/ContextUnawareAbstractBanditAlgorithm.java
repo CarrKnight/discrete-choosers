@@ -6,7 +6,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import io.github.carrknight.Chooser;
 import io.github.carrknight.Observation;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import io.github.carrknight.utils.averager.Averager;
 import io.github.carrknight.utils.averager.IterativeAverager;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      * describing how good it is. The higher the better
      */
     @NotNull
-    private final UtilityFunction<O,R,Object > rewardExtractor;
+    private final RewardFunction<O,R,Object > rewardExtractor;
 
     /**
      * A bimap describing all the options available to the bandit algorithm;
@@ -74,7 +74,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     public ContextUnawareAbstractBanditAlgorithm(
             @NotNull
 
-                    UtilityFunction<O,R,Object >  rewardExtractor,
+                    RewardFunction<O,R,Object > rewardExtractor,
             @NotNull
 
                     O[] optionsAvailable, long randomSeed) {
@@ -95,7 +95,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
 
 
     public ContextUnawareAbstractBanditAlgorithm(
-            @NotNull UtilityFunction<O,R,Object > rewardExtractor, @NotNull O[] optionsAvailable,
+            @NotNull RewardFunction<O,R,Object > rewardExtractor, @NotNull O[] optionsAvailable,
             double initialExpectedReward, SplittableRandom randomizer) {
         Preconditions.checkArgument(optionsAvailable.length>0,
                                     "Given no options!");

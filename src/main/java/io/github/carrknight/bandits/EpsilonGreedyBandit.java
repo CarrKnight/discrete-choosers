@@ -4,12 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
 import io.github.carrknight.utils.DiscreteChoosersUtilities;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.function.Function;
 
 public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgorithm<O, R> {
 
@@ -27,7 +24,7 @@ public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgori
      * @param epsilon
      */
     public EpsilonGreedyBandit(
-            @NotNull UtilityFunction<O,R,Object> rewardExtractor,
+            @NotNull RewardFunction<O,R,Object> rewardExtractor,
             @NotNull O[] optionsAvailable, long randomSeed, double epsilon) {
         super(rewardExtractor, optionsAvailable, randomSeed);
         Preconditions.checkArgument(epsilon>=0, "espilon cannot be lower than 0");

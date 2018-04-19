@@ -1,13 +1,9 @@
 package io.github.carrknight.heatmaps.regression;
 
-import io.github.carrknight.Observation;
-import io.github.carrknight.heatmaps.regression.distance.FeatureDistance;
 import io.github.carrknight.heatmaps.regression.distance.FeatureKernel;
 
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.function.Function;
 
 public class KernelNumericalRegression implements NumericalRegression {
 
@@ -35,7 +31,7 @@ public class KernelNumericalRegression implements NumericalRegression {
     }
 
     @Override
-    public void observe(Double y, double[] x) {
+    public void observe(double[] x, Double y) {
 
         if(!NumericalRegression.isValidInput(x,y))
             return;

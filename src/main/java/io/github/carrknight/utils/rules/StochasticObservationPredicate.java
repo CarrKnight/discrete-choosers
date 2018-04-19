@@ -1,7 +1,7 @@
 package io.github.carrknight.utils.rules;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 
 import java.util.SplittableRandom;
 
@@ -24,13 +24,13 @@ public class StochasticObservationPredicate<O,R,C> implements ObservationPredica
     /**
      * @param lastObservation
      * @param currentChoice
-     * @param utilityFunction utility function
+     * @param rewardFunction utility function
      * @param random
      * @return true if the agent should "explore"
      */
     @Override
     public boolean shouldExplore(
-            Observation<O, R, C> lastObservation, O currentChoice, UtilityFunction<O, R, C> utilityFunction,
+            Observation<O, R, C> lastObservation, O currentChoice, RewardFunction<O, R, C> rewardFunction,
             SplittableRandom random,
             Observation<O,R,C>... additionalObservations
     ) {

@@ -1,11 +1,10 @@
 package io.github.carrknight.bandits;
 
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.SplittableRandom;
-import java.util.function.Function;
 
 /**
  * nothing more than a facade/factory for the softmax bandit when it deals with indexed choices and observes readily its rewards
@@ -23,7 +22,7 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
     public SimpleSoftmaxBanditAlgorithm(int numberOfOptions,
                                      long randomSeed) {
         super(
-                new UtilityFunction<Integer, Double, Object>() {
+                new RewardFunction<Integer, Double, Object>() {
                     @Override
                     public double extractUtility(
                             @NotNull Integer optionTaken, @NotNull Double experimentResult,
@@ -49,7 +48,7 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
                                         long randomSeed,
                                         double initialExpectedReward) {
         super(
-                new UtilityFunction<Integer, Double, Object>() {
+                new RewardFunction<Integer, Double, Object>() {
                     @Override
                     public double extractUtility(
                             @NotNull Integer optionTaken, @NotNull Double experimentResult,
@@ -78,7 +77,7 @@ public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer
                                         double initialTemperature,
                                         double temperatureDecay) {
         super(
-                new UtilityFunction<Integer, Double, Object>() {
+                new RewardFunction<Integer, Double, Object>() {
                     @Override
                     public double extractUtility(
                             @NotNull Integer optionTaken, @NotNull Double experimentResult,

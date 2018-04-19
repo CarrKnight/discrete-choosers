@@ -1,8 +1,5 @@
 package io.github.carrknight.heatmaps.regression;
 
-import ags.utils.dataStructures.MaxHeap;
-import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
-import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
 import com.google.common.base.Preconditions;
 import io.github.carrknight.Observation;
 import io.github.carrknight.heatmaps.regression.distance.FeatureDistance;
@@ -55,7 +52,7 @@ public class NearestNeighborRegression<O,R,C> extends FeatureBasedRegression<O, 
      */
     @Override
     public void observe(Double y, double[] x) {
-        delegate.observe(y, x);
+        delegate.observe(x, y);
     }
 
     /**

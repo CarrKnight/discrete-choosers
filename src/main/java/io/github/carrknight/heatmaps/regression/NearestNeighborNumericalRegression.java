@@ -86,11 +86,11 @@ public class NearestNeighborNumericalRegression implements NumericalRegression {
 
     /**
      * Add observation to KD tree
-     * @param y the endogenous variable observed
      * @param x the exogenous variables observed
+     * @param y the endogenous variable observed
      */
     @Override
-    public void observe(Double y, double[] x) {
+    public void observe(double[] x, Double y) {
 
         //never bother if any feature is NaN
         if(!NumericalRegression.isValidInput(x,y))

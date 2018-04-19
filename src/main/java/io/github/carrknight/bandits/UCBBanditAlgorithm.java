@@ -4,13 +4,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
 import io.github.carrknight.utils.DiscreteChoosersUtilities;
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.SplittableRandom;
-import java.util.function.Function;
 
 /**
  * the UCB1 algorithm; it requires bounded rewards between 1 and 0
@@ -23,14 +22,14 @@ public class UCBBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorit
 
 
     public UCBBanditAlgorithm(
-            @NotNull UtilityFunction<O,R,Object > rewardExtractor,
+            @NotNull RewardFunction<O,R,Object > rewardExtractor,
             @NotNull O[] optionsAvailable,
             double initialExpectedReward,
             SplittableRandom randomizer,
             double minimumRewardExpected,
             double maximumRewardExpected, double sigma) {
         super(
-                new UtilityFunction<O, R, Object>() {
+                new RewardFunction<O, R, Object>() {
                     @Override
                     public double extractUtility(
                             @NotNull O optionTaken, @NotNull R experimentResult, @Nullable Object contextObject) {

@@ -15,10 +15,10 @@ public interface NumericalRegression {
 
     /**
      * learn from observation
-     * @param y the endogenous variable observed
      * @param x the exogenous variables observed
+     * @param y the endogenous variable observed
      */
-    void observe(Double y, double[] x);
+    void observe(double[] x, Double y);
 
 
     /**

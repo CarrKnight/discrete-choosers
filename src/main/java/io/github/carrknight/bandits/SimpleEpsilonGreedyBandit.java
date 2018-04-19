@@ -1,10 +1,8 @@
 package io.github.carrknight.bandits;
 
-import io.github.carrknight.utils.UtilityFunction;
+import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Function;
 
 /**
  *  e-greedy algorithm where the options are just indices (that is 1,2,...,n) and you observe the rewards directly (no need to transform)
@@ -19,7 +17,7 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
     public SimpleEpsilonGreedyBandit(int numberOfOptions,
                                      long randomSeed, double epsilon) {
         super(
-                new UtilityFunction<Integer, Double, Object>() {
+                new RewardFunction<Integer, Double, Object>() {
                     @Override
                     public double extractUtility(
                             @NotNull Integer optionTaken, @NotNull Double experimentResult,

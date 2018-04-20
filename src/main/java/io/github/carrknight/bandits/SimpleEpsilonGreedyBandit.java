@@ -71,7 +71,7 @@ public class SimpleEpsilonGreedyBandit extends EpsilonGreedyBandit<Integer, Doub
     public static EpsilonGreedyBandit build(int numberOfOptions,
                                             long randomSeed, double epsilon,
                                             Supplier<? extends OneDimensionalFilter> memoryMaker,
-                                            Similarity<Integer> similarity
+                                            Similarity<Integer,Object> similarity
     )
     {
         SimpleEpsilonGreedyBandit algo = new SimpleEpsilonGreedyBandit(numberOfOptions,

@@ -23,7 +23,7 @@ public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R,
     /**
      * function transforming the tuple O,R,C (usually focusing on R) into a number representing the Y value of the regression
      */
-    private final Function<Observation<O,R,C>,Double> yExtractor;
+    protected final Function<Observation<O,R,C>,Double> yExtractor;
 
 
     public FeatureBasedRegression(
@@ -42,11 +42,7 @@ public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R,
      */
     @Override
     public double predict(O whereToPredict, C predictionContext) {
-        double[] x = FeatureExtractor.convertToFeatures(
-                whereToPredict,
-                predictionContext,
-                extractors
-        );
+        double[] x = convertOptionToFeatures((O) whereToPredict, (C) predictionContext);
 
         //never predict if any feature is NaN
         for (double feature : x) {
@@ -67,11 +63,7 @@ public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R,
     @Override
     public void observe(Observation<O, R, C> observation) {
 
-        double[] x = FeatureExtractor.convertToFeatures(
-                observation.getChoiceMade(),
-                observation.getContext(),
-                extractors
-        );
+        double[] x = convertOptionToFeatures(observation.getChoiceMade(), observation.getContext());
         Double y = yExtractor.apply(observation);
 
 
@@ -81,6 +73,21 @@ public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R,
 
         observe(y, x);
     }
+
+    /**
+     * convert options!
+     * @param choiceMade
+     * @param context
+     * @return
+     */
+    protected double[] convertOptionToFeatures(O choiceMade, C context) {
+        return FeatureExtractor.convertToFeatures(
+                choiceMade,
+                context,
+                extractors
+        );
+    }
+
 
 
     public abstract void observe(Double y, double[] x);

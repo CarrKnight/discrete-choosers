@@ -263,7 +263,7 @@ public abstract class AbstractBanditAlgorithm<O,R,C> implements Chooser<O, R, C>
     }
 
 
-    public void resetSimilarityIndex(Similarity<O> similarity)
+    public void resetSimilarityIndex(Similarity<O,C> similarity)
     {
         Preconditions.checkArgument(banditState instanceof LocalFilterSpace,
                                     "you must have changed the bandit state away from LocalFilterSpace, now you can't call reset; just set the new state directly");

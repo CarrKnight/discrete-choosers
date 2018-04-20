@@ -30,14 +30,14 @@ public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
 
 
     @Nullable
-    private Similarity<O> optionSimilarity;
+    private Similarity<O,C> optionSimilarity;
 
     public LocalFilterSpace(
             O[] optionsAvailable,
             OneDimensionalFilter[] givenFilters,
             RewardFunction<O, R, C> utility,
             @Nullable
-                    Similarity<O> optionSimilarity)
+                    Similarity<O,C> optionSimilarity)
     {
         Preconditions.checkArgument(givenFilters.length==optionsAvailable.length);
         Preconditions.checkArgument(givenFilters.length>0);
@@ -60,7 +60,7 @@ public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
             Supplier<? extends OneDimensionalFilter> filterMaker,
             RewardFunction<O, R, C> utility,
             @Nullable
-                    Similarity<O> optionSimilarity)
+                    Similarity<O,C> optionSimilarity)
     {
         this.utility = utility;
         this.optionSimilarity = optionSimilarity;
@@ -100,7 +100,8 @@ public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
 
                 double weight = optionSimilarity.similarity(
                         filterEntry.getKey(),
-                        observation.getChoiceMade());
+                        observation.getChoiceMade(),
+                        observation.getContext());
 
                 filterEntry.getValue().observe(
                         reward,
@@ -130,7 +131,7 @@ public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
      * @return Value for property 'optionSimilarity'.
      */
     @Nullable
-    public Similarity<O> getOptionSimilarity() {
+    public Similarity<O,C> getOptionSimilarity() {
         return optionSimilarity;
     }
 
@@ -139,7 +140,7 @@ public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
      *
      * @param optionSimilarity Value to set for property 'optionSimilarity'.
      */
-    public void setOptionSimilarity(@Nullable Similarity<O> optionSimilarity) {
+    public void setOptionSimilarity(@Nullable Similarity<O,C> optionSimilarity) {
         this.optionSimilarity = optionSimilarity;
     }
 

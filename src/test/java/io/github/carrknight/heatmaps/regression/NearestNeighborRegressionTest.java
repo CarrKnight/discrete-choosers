@@ -1,7 +1,6 @@
 package io.github.carrknight.heatmaps.regression;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.heatmaps.OnlineRegression;
 import io.github.carrknight.heatmaps.regression.distance.AbsoluteFeatureDistance;
 import org.junit.Test;
 
@@ -10,7 +9,6 @@ import java.util.function.Function;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class NearestNeighborRegressionTest {
 

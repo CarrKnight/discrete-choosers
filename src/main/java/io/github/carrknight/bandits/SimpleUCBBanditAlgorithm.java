@@ -5,7 +5,7 @@ import java.util.SplittableRandom;
 /**
  * facade/factory for the UCB algorithm
  */
-public class SimpleUCBBanditAlgorithm extends UCBBanditAlgorithm<Integer, Double> {
+public class SimpleUCBBanditAlgorithm extends UCBBanditAlgorithm<Integer, Double,Object> {
 
 
     /**

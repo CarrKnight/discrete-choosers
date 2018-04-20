@@ -21,7 +21,7 @@
 package io.github.carrknight.heatmaps.regression.distance;
 
 /**
- * Takes a regression distance and makes it into RBF kernel. Notice that in reality we probably want 1/this for distance
+ * Takes a regression similarity and makes it into RBF kernel. Notice that in reality we probably want 1/this for similarity
  * since Kernels are a measure of similarity
  * Created by carrknight on 8/14/16.
  */

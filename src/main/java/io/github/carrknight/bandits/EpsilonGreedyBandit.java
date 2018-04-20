@@ -3,12 +3,13 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.heatmaps.BeliefState;
 import io.github.carrknight.utils.DiscreteChoosersUtilities;
 import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgorithm<O, R> {
+public class EpsilonGreedyBandit<O,R,C> extends AbstractBanditAlgorithm<O, R,C> {
 
 
     /**
@@ -24,14 +25,13 @@ public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgori
      * @param epsilon
      */
     public EpsilonGreedyBandit(
-            @NotNull RewardFunction<O,R,Object> rewardExtractor,
+            @NotNull RewardFunction<O,R,C> rewardExtractor,
             @NotNull O[] optionsAvailable, long randomSeed, double epsilon) {
         super(rewardExtractor, optionsAvailable, randomSeed);
         Preconditions.checkArgument(epsilon>=0, "espilon cannot be lower than 0");
         Preconditions.checkArgument(epsilon<=1, "epsilon cannot be higher than 1");
         this.epsilon = epsilon;
     }
-
 
 
 
@@ -49,11 +49,10 @@ public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgori
     @NotNull
     @Override
     protected O choose(
-            BanditState state, @NotNull BiMap<O, Integer> optionsAvailable,
-            @Nullable Observation<O, R, Object> lastObservation, O lastChoice) {
+            BeliefState<O, R, C> state, @NotNull BiMap<O, Integer> optionsAvailable,
+            @Nullable Observation<O, R, C> lastObservation, O lastChoice) {
 
-        int numberOfOptions=state.getNumberOfOptions();
-        assert numberOfOptions==optionsAvailable.size();
+        int numberOfOptions=optionsAvailable.size();
 
         //explore:
         if(getRandomizer().nextDouble() < epsilon)
@@ -65,15 +64,15 @@ public class EpsilonGreedyBandit<O,R> extends ContextUnawareAbstractBanditAlgori
         else
         {
 
-            Integer bestIndex = DiscreteChoosersUtilities.getBestOption(
-                    optionsAvailable.values(),
-                    slotMachine -> state.getAverageRewardObserved(slotMachine),
+            O bestOption = DiscreteChoosersUtilities.getBestOption(
+                    optionsAvailable.keySet(),
+                    o -> state.predict(o,null),
                     getRandomizer(),
                     Double.NEGATIVE_INFINITY
             );
-            assert bestIndex != null;
+            assert bestOption != null;
             return
-                    optionsAvailable.inverse().get(bestIndex);
+                    bestOption;
 
         }
 

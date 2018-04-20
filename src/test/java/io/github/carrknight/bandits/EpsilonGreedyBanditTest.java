@@ -1,10 +1,13 @@
 package io.github.carrknight.bandits;
 
+import io.github.carrknight.heatmaps.regression.OneDimensionalFilter;
 import io.github.carrknight.utils.SimpleObservation;
+import io.github.carrknight.utils.averager.ExponentialMovingAverageFilter;
 import io.github.carrknight.utils.averager.ExponentialMovingAverager;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -58,8 +61,9 @@ public class EpsilonGreedyBanditTest
                         System.currentTimeMillis(),
                         .8 //explore a lot
                 );
+        //change it into an EMA filtered bandit
+        bandit.resetStateUsingThisFilter(() -> new ExponentialMovingAverageFilter(0, .4));
 
-        bandit.setAverager(new ExponentialMovingAverager(.4));
 
         Random random = new Random(System.currentTimeMillis());
         // should pick the best option

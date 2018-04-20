@@ -1,6 +1,7 @@
 package io.github.carrknight.bandits;
 
 import io.github.carrknight.utils.SimpleObservation;
+import io.github.carrknight.utils.averager.ExponentialMovingAverageFilter;
 import io.github.carrknight.utils.averager.ExponentialMovingAverager;
 import org.junit.Test;
 
@@ -39,10 +40,10 @@ public class UCB1BanditAlgorithmTest {
 
         System.out.println(bandit.getBanditState());
         for(int i=0; i<9; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
-            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
-                               bandit.getBanditState().getNumberOfObservations(i));
+            assertTrue(bandit.getBanditState().predict(9,null) >
+                               bandit.getBanditState().predict(i,null));
+            assertTrue(bandit.getNumberOfTimesPlayed(9) >
+                               bandit.getNumberOfTimesPlayed(i));
         }
 
     }
@@ -61,7 +62,9 @@ public class UCB1BanditAlgorithmTest {
                         -200,200
                 );
 
-        bandit.setAverager(new ExponentialMovingAverager(.4));
+        bandit.resetStateUsingThisFilter(
+                ()->new ExponentialMovingAverageFilter(0,.4)
+        );
 
         Random random = new Random(System.currentTimeMillis());
         // should pick the best option
@@ -75,11 +78,17 @@ public class UCB1BanditAlgorithmTest {
 
         //now you should be playing best
         for(int i=0; i<9; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
-            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
-                               bandit.getBanditState().getNumberOfObservations(i));
+            assertTrue(bandit.getBanditState().predict(9,null) >
+                               bandit.getBanditState().predict(i,null));
+            assertTrue(bandit.getNumberOfTimesPlayed(9) >
+                               bandit.getNumberOfTimesPlayed(i));
         }
+
+        System.out.println(bandit.getBanditState().predict(0,null));
+        System.out.println(bandit.getBanditState().predict(1,null));
+        System.out.println(bandit.getBanditState().predict(2,null));
+        System.out.println(bandit.getBanditState().predict(9,null));
+        System.out.println(bandit.getNumberOfTimesPlayed(9));
 
         //but now reverse rewards!
         //NOTICE IT TAKES A LOT LONGER! UCB1 isn't that adaptive
@@ -91,13 +100,18 @@ public class UCB1BanditAlgorithmTest {
             );
         }
 
-
-        System.out.println(bandit.getBanditState());
+        System.out.println("================================================");
+        System.out.println(bandit.getBanditState().predict(0,null));
+        System.out.println(bandit.getBanditState().predict(1,null));
+        System.out.println(bandit.getBanditState().predict(2,null));
+        System.out.println(bandit.getBanditState().predict(9,null));
+        System.out.println(bandit.getBanditState().predict(9,null));
+        System.out.println(bandit.getNumberOfTimesPlayed(9));
 
         //should have switched!
         for(int i=1; i<10; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(0) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().predict(0,null) >
+                               bandit.getBanditState().predict(i,null));
         }
 
     }

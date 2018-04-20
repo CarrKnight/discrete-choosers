@@ -21,7 +21,7 @@
 package io.github.carrknight.heatmaps.regression.distance;
 
 /**
- * The distance (as in opposite of similiarity) between two features extracted during a regression
+ * The similarity (as in opposite of similiarity) between two features extracted during a regression
  * Created by carrknight on 8/24/16.
  */
 public interface FeatureDistance {

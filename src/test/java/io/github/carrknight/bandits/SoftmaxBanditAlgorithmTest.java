@@ -1,10 +1,13 @@
 package io.github.carrknight.bandits;
 
+import io.github.carrknight.heatmaps.regression.OneDimensionalFilter;
 import io.github.carrknight.utils.SimpleObservation;
+import io.github.carrknight.utils.averager.ExponentialMovingAverageFilter;
 import io.github.carrknight.utils.averager.ExponentialMovingAverager;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -43,10 +46,10 @@ public class SoftmaxBanditAlgorithmTest {
         System.out.println(bandit.getBanditState());
 
         for(int i=0; i<9; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
-            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
-                               bandit.getBanditState().getNumberOfObservations(i));
+            assertTrue(bandit.getBanditState().predict(9,null) >
+                               bandit.getBanditState().predict(i,null));
+            assertTrue(bandit.getBanditState().predict(9,null) >
+                               bandit.getBanditState().predict(i,null));
         }
 
     }
@@ -68,7 +71,7 @@ public class SoftmaxBanditAlgorithmTest {
 
                 );
 
-        bandit.setAverager(new ExponentialMovingAverager(.4));
+        bandit.resetStateUsingThisFilter(() -> new ExponentialMovingAverageFilter(0, .4));
 
         Random random = new Random(System.currentTimeMillis());
         // should pick the best option
@@ -83,10 +86,10 @@ public class SoftmaxBanditAlgorithmTest {
         //now you should be playing best
         System.out.println(bandit.getBanditState());
         for(int i=0; i<9; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(9) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
-            assertTrue(bandit.getBanditState().getNumberOfObservations(9) >
-                               bandit.getBanditState().getNumberOfObservations(i));
+            assertTrue(bandit.getBanditState().predict(9,null) >
+                               bandit.getBanditState().predict(i,null));
+            assertTrue(bandit.getNumberOfTimesPlayed(9) >
+                               bandit.getNumberOfTimesPlayed(i));
         }
 
         //but now reverse rewards!
@@ -102,8 +105,8 @@ public class SoftmaxBanditAlgorithmTest {
 
         //should have switched!
         for(int i=1; i<10; i++) {
-            assertTrue(bandit.getBanditState().getAverageRewardObserved(0) >
-                               bandit.getBanditState().getAverageRewardObserved(i));
+            assertTrue(bandit.getBanditState().predict(0,null) >
+                               bandit.getBanditState().predict(i,null));
         }
     }
 

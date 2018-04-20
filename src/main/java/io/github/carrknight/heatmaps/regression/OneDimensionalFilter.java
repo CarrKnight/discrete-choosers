@@ -1,7 +1,7 @@
 package io.github.carrknight.heatmaps.regression;
 
 /**
- * this is basically any object that is like a very basic regression that only ever observes Y (no X) and
+ * this is basically any object that is like a very basic signal filter that keeps observing Y_1,Y_2,\dots,Y_n and
  * wants to predict what Y will be next time
  */
 public interface OneDimensionalFilter {

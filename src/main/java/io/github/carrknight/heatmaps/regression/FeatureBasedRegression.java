@@ -1,7 +1,7 @@
 package io.github.carrknight.heatmaps.regression;
 
 import io.github.carrknight.Observation;
-import io.github.carrknight.heatmaps.OnlineRegression;
+import io.github.carrknight.heatmaps.BeliefState;
 
 import java.util.function.Function;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @param <R> kind of experiment result
  * @param <C> kind of context for choice and prediction
  */
-public abstract class FeatureBasedRegression<O,R,C> implements OnlineRegression<O, R, C> {
+public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R, C> {
 
 
     /**

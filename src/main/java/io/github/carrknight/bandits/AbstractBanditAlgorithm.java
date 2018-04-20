@@ -6,13 +6,17 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import io.github.carrknight.Chooser;
 import io.github.carrknight.Observation;
+import io.github.carrknight.heatmaps.BeliefState;
+import io.github.carrknight.heatmaps.regression.LocalFilterSpace;
+import io.github.carrknight.heatmaps.regression.OneDimensionalFilter;
+import io.github.carrknight.heatmaps.regression.distance.Similarity;
 import io.github.carrknight.utils.RewardFunction;
-import io.github.carrknight.utils.averager.Averager;
-import io.github.carrknight.utils.averager.IterativeAverager;
+import io.github.carrknight.utils.averager.IterativeAverageFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.SplittableRandom;
+import java.util.function.Supplier;
 
 /**
  * complicated name, simple class: it's an abstract class tagging and implementing the basics
@@ -21,15 +25,9 @@ import java.util.SplittableRandom;
  * @param <R> the class describing the reward object (say, FishCaught if we are modelling the fisher judging the spot they have just been to)
 
  */
-public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Chooser<O, R, Object> {
+public abstract class AbstractBanditAlgorithm<O,R,C> implements Chooser<O, R, C> {
 
 
-    /**
-     * In the end these bandits want a reward that is numeric. This takes the R observed and returns a single number
-     * describing how good it is. The higher the better
-     */
-    @NotNull
-    private final RewardFunction<O,R,Object > rewardExtractor;
 
     /**
      * A bimap describing all the options available to the bandit algorithm;
@@ -41,24 +39,23 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     /**
      * object storing current knowledge
      */
-    private BanditState banditState;
+    private BeliefState<O,R,C> banditState;
 
     /**
      * what to do about additional observations; default is to ignore
      */
-    private BanditImitationPolicy<O,R,Object>  imitationPolicy =
+    private BanditImitationPolicy<O,R,C>  imitationPolicy =
             new IgnoreBanditImitationPolicy<>();
 
-    /**
-     * how to smooth current knowledge with new observations? Currently just averages stuff out
-     */
-    private Averager averager = new IterativeAverager();
 
     /**
      * last time we updated, this was our choice
      */
     private O lastChoice;
 
+    final private int[] timesPlayed;
+
+    private int numberOfObservations=0;
 
     /**
      * the randomizer to use
@@ -71,10 +68,10 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      * @param optionsAvailable what kind of options are available
      * @param randomSeed random seed
      */
-    public ContextUnawareAbstractBanditAlgorithm(
+    public AbstractBanditAlgorithm(
             @NotNull
 
-                    RewardFunction<O,R,Object > rewardExtractor,
+                    RewardFunction<O,R,C > rewardExtractor,
             @NotNull
 
                     O[] optionsAvailable, long randomSeed) {
@@ -90,17 +87,11 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
 
 
 
-
-
-
-
-    public ContextUnawareAbstractBanditAlgorithm(
-            @NotNull RewardFunction<O,R,Object > rewardExtractor, @NotNull O[] optionsAvailable,
+    public AbstractBanditAlgorithm(
+            @NotNull RewardFunction<O,R,C > rewardExtractor, @NotNull O[] optionsAvailable,
             double initialExpectedReward, SplittableRandom randomizer) {
         Preconditions.checkArgument(optionsAvailable.length>0,
                                     "Given no options!");
-
-        this.rewardExtractor = rewardExtractor;
 
         //turn array into bimap
         ImmutableBiMap.Builder<O, Integer> builder = ImmutableBiMap.builder();
@@ -109,13 +100,17 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
 
         this.optionsAvailable = builder.build();
 
-        this.banditState = new BanditState(
-                optionsAvailable.length,
-                initialExpectedReward
+        this.banditState = new LocalFilterSpace<>(
+                optionsAvailable,
+                //by default use the standard average filter
+                () -> new IterativeAverageFilter(initialExpectedReward),
+                rewardExtractor,
+                null
         );
 
         this.randomizer = randomizer;
         this.lastChoice = optionsAvailable[randomizer.nextInt(optionsAvailable.length)];
+        timesPlayed = new int[optionsAvailable.length];
 
     }
 
@@ -133,14 +128,14 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     @SafeVarargs
     @Override
     public final O updateAndChoose(
-            Observation<O, R, Object> observation,
-            Observation<O, R, Object>... additionalObservations) {
+            Observation<O, R, C> observation,
+            Observation<O, R, C>... additionalObservations) {
         //learn from the last observation
         if(observation!=null)
             learnFromObservation(observation);
         //decide whether to learn from additional observations
-        for (Observation<O, R, Object> additional : additionalObservations) {
-            Observation<O, R, Object> filtered =
+        for (Observation<O, R, C> additional : additionalObservations) {
+            Observation<O, R, C> filtered =
                     imitationPolicy.decideOnAdditionalInformation(additional,
                                                                   banditState);
             if(filtered!=null)
@@ -159,13 +154,10 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
 
 
 
-    private void learnFromObservation(Observation<O, R, Object> observation) {
-        int observationIndex = optionsAvailable.get(observation.getChoiceMade());
-        double rewardObtained = rewardExtractor.extractUtility(
-                observation.getChoiceMade(),
-                observation.getResultObserved(),
-                null);
-        banditState.observeNewReward(rewardObtained,observationIndex,averager);
+    private void learnFromObservation(Observation<O, R, C> observation) {
+        timesPlayed[optionsAvailable.get(observation.getChoiceMade())]++;
+        numberOfObservations++;
+        banditState.observe(observation);
     }
 
 
@@ -177,11 +169,11 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      */
     @NotNull
     abstract protected O choose(
-            BanditState state,
+            BeliefState<O,R,C> state,
             @NotNull
                     BiMap<O,Integer> optionsAvailable,
             @Nullable
-                    Observation<O,R,Object> lastObservation,
+                    Observation<O,R,C> lastObservation,
             O lastChoice
     ) ;
 
@@ -201,7 +193,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      *
      * @return Value for property 'banditState'.
      */
-    public BanditState getBanditState() {
+    public BeliefState<O, R, C> getBanditState() {
         return banditState;
     }
 
@@ -210,7 +202,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      *
      * @param banditState Value to set for property 'banditState'.
      */
-    public void setBanditState(BanditState banditState) {
+    public void setBanditState(BeliefState<O, R, C> banditState) {
         this.banditState = banditState;
     }
 
@@ -219,7 +211,7 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      *
      * @return Value for property 'imitationPolicy'.
      */
-    public BanditImitationPolicy<O, R, Object> getImitationPolicy() {
+    public BanditImitationPolicy<O, R, C> getImitationPolicy() {
         return imitationPolicy;
     }
 
@@ -228,27 +220,11 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
      *
      * @param imitationPolicy Value to set for property 'imitationPolicy'.
      */
-    public void setImitationPolicy(BanditImitationPolicy<O, R, Object> imitationPolicy) {
+    public void setImitationPolicy(BanditImitationPolicy<O, R, C> imitationPolicy) {
         this.imitationPolicy = imitationPolicy;
     }
 
-    /**
-     * Getter for property 'averager'.
-     *
-     * @return Value for property 'averager'.
-     */
-    public Averager getAverager() {
-        return averager;
-    }
 
-    /**
-     * Setter for property 'averager'.
-     *
-     * @param averager Value to set for property 'averager'.
-     */
-    public void setAverager(Averager averager) {
-        this.averager = averager;
-    }
 
     /**
      * Getter for property 'randomizer'.
@@ -258,4 +234,41 @@ public abstract class ContextUnawareAbstractBanditAlgorithm<O,R> implements Choo
     public SplittableRandom getRandomizer() {
         return randomizer;
     }
+
+    public int getNumberOfTimesPlayed(O choice){
+        return timesPlayed[optionsAvailable.get(choice)];
+
+    }
+
+    /**
+     * Getter for property 'numberOfObservations'.
+     *
+     * @return Value for property 'numberOfObservations'.
+     */
+    public int getNumberOfObservations() {
+        return numberOfObservations;
+    }
+
+
+    /**
+     * utility method to change quickly the BeliefState to another 1D filter method. Will only work
+     * if the current BeliefState is also simple
+     */
+    public void resetStateUsingThisFilter(Supplier<? extends OneDimensionalFilter> filter)
+    {
+        Preconditions.checkArgument(banditState instanceof LocalFilterSpace,
+                                    "you must have changed the bandit state away from LocalFilterSpace, now you can't call reset; just set the new state directly");
+        assert banditState instanceof LocalFilterSpace;
+        ((LocalFilterSpace) banditState).resetFilter(filter);
+    }
+
+
+    public void resetSimilarityIndex(Similarity<O> similarity)
+    {
+        Preconditions.checkArgument(banditState instanceof LocalFilterSpace,
+                                    "you must have changed the bandit state away from LocalFilterSpace, now you can't call reset; just set the new state directly");
+        assert banditState instanceof LocalFilterSpace;
+        ((LocalFilterSpace) banditState).setOptionSimilarity(similarity);
+    }
+
 }

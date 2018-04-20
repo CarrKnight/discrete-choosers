@@ -3,6 +3,7 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.heatmaps.BeliefState;
 import io.github.carrknight.utils.DiscreteChoosersUtilities;
 import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
@@ -16,23 +17,24 @@ import java.util.SplittableRandom;
  * @param <O>
  * @param <R>
  */
-public class UCBBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorithm<O, R> {
+public class UCBBanditAlgorithm<O,R,C> extends AbstractBanditAlgorithm<O, R,C> {
 
     private double sigma;
 
 
     public UCBBanditAlgorithm(
-            @NotNull RewardFunction<O,R,Object > rewardExtractor,
+            @NotNull RewardFunction<O,R,C > rewardExtractor,
             @NotNull O[] optionsAvailable,
             double initialExpectedReward,
             SplittableRandom randomizer,
             double minimumRewardExpected,
             double maximumRewardExpected, double sigma) {
         super(
-                new RewardFunction<O, R, Object>() {
+                //scale all rewards to 0 - 1
+                new RewardFunction<O, R, C>() {
                     @Override
                     public double extractUtility(
-                            @NotNull O optionTaken, @NotNull R experimentResult, @Nullable Object contextObject) {
+                            @NotNull O optionTaken, @NotNull R experimentResult, @Nullable C contextObject) {
                         //rescales rewards between 0 and 1!
                         double reward = rewardExtractor.extractUtility(optionTaken,
                                                                        experimentResult,
@@ -76,44 +78,43 @@ public class UCBBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorit
     @NotNull
     @Override
     protected O choose(
-            BanditState state, @NotNull BiMap<O, Integer> optionsAvailable,
-            @Nullable Observation<O, R, Object> lastObservation, O lastChoice) {
+            BeliefState<O, R, C> state, @NotNull BiMap<O, Integer> optionsAvailable,
+            @Nullable Observation<O, R, C> lastObservation, O lastChoice) {
 
         int numberOfOptions = optionsAvailable.size();
         //if there is an option without a single played game, play that first
-        if (numberOfOptions > state.getNumberOfObservations()) {
-            ArrayList<Integer> candidates = new ArrayList<>();
-            for (int slotMachine = 0; slotMachine < numberOfOptions; slotMachine++) {
+        if (numberOfOptions > getNumberOfObservations()) {
+            ArrayList<O> candidates = new ArrayList<>();
+            for (O option : optionsAvailable.keySet()) {
 
-                if (state.getNumberOfObservations(slotMachine) == 0)
-                    candidates.add(slotMachine);
+                if (getNumberOfTimesPlayed(option) == 0)
+                    candidates.add(option);
 
 
             }
 
             assert candidates.size() >= 1;
             return
-                    optionsAvailable.inverse().get(
-                            candidates.get(getRandomizer().nextInt(candidates.size()))
-                    );
+                            candidates.get(getRandomizer().nextInt(candidates.size()));
+
         }
         //everything has been played at least once, proceed with standard UCB1 exploitation
         else {
 
 
-            Integer bestIndex = DiscreteChoosersUtilities.getBestOption(
-                    optionsAvailable.values(),
+            C context = lastObservation == null ? null : lastObservation.getContext();
+            O bestChoice = DiscreteChoosersUtilities.getBestOption(
+                    optionsAvailable.keySet(),
                     slotMachine -> upperConfidenceBound(
-                            state.getAverageRewardObserved(slotMachine),
-                            state.getNumberOfObservations(slotMachine),
-                            state.getNumberOfObservations()
+                            state.predict(slotMachine,context),
+                            getNumberOfTimesPlayed(slotMachine),
+                            getNumberOfObservations()
                     ),
                     getRandomizer(),
                     Double.NEGATIVE_INFINITY
             );
-            assert bestIndex != null;
-            return
-                    optionsAvailable.inverse().get(bestIndex);
+            assert bestChoice != null;
+            return bestChoice;
 
         }
 

@@ -9,7 +9,7 @@ import java.util.SplittableRandom;
 /**
  * nothing more than a facade/factory for the softmax bandit when it deals with indexed choices and observes readily its rewards
  */
-public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer, Double>
+public class SimpleSoftmaxBanditAlgorithm extends SoftmaxBanditAlgorithm<Integer, Double,Object>
 {
 
 

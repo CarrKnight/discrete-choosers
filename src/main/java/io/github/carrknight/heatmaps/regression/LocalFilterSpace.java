@@ -2,21 +2,23 @@ package io.github.carrknight.heatmaps.regression;
 
 import com.google.common.base.Preconditions;
 import io.github.carrknight.Observation;
-import io.github.carrknight.heatmaps.OnlineRegression;
-import io.github.carrknight.heatmaps.regression.distance.Distance;
+import io.github.carrknight.heatmaps.BeliefState;
+import io.github.carrknight.heatmaps.regression.distance.Similarity;
 import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * basically we build a 1D filter for each possible option but given a distance function we can update the prediction
+ * basically we build a 1D filter for each possible option but given a similarity function we can update the prediction
  * for one object given the observed reward for another
  */
-public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
+public class LocalFilterSpace<O,R,C> implements BeliefState<O,R,C>
 {
 
 
@@ -28,20 +30,20 @@ public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
 
 
     @Nullable
-    private final Distance<O> optionDistance;
+    private Similarity<O> optionSimilarity;
 
-    public LocalFilterRegression(
+    public LocalFilterSpace(
             O[] optionsAvailable,
             OneDimensionalFilter[] givenFilters,
             RewardFunction<O, R, C> utility,
             @Nullable
-                    Distance<O> optionDistance)
+                    Similarity<O> optionSimilarity)
     {
         Preconditions.checkArgument(givenFilters.length==optionsAvailable.length);
         Preconditions.checkArgument(givenFilters.length>0);
         this.utility = utility;
 
-        this.optionDistance = optionDistance;
+        this.optionSimilarity = optionSimilarity;
         for(int i=0; i<givenFilters.length;i++)
         {
             filters.put(optionsAvailable[i],
@@ -51,15 +53,17 @@ public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
     }
 
 
-    public LocalFilterRegression(
+
+
+    public LocalFilterSpace(
             O[] optionsAvailable,
             Supplier<? extends OneDimensionalFilter> filterMaker,
             RewardFunction<O, R, C> utility,
             @Nullable
-                    Distance<O> optionDistance)
+                    Similarity<O> optionSimilarity)
     {
         this.utility = utility;
-        this.optionDistance = optionDistance;
+        this.optionSimilarity = optionSimilarity;
         for(O option : optionsAvailable)
             filters.put(
                     option,
@@ -80,9 +84,9 @@ public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
                                                  observation.getResultObserved(),
                                                  observation.getContext());
 
-        //if you have no distance function, I assume you don't want to generalize observations
+        //if you have no similarity function, I assume you don't want to generalize observations
         // between choices
-        if(optionDistance==null)
+        if(optionSimilarity ==null)
         {
 
             filters.get(observation.getChoiceMade()).observe(
@@ -94,7 +98,7 @@ public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
             //for all options available
             for (Map.Entry<O, OneDimensionalFilter> filterEntry : filters.entrySet()) {
 
-                double weight = optionDistance.distance(
+                double weight = optionSimilarity.similarity(
                         filterEntry.getKey(),
                         observation.getChoiceMade());
 
@@ -107,6 +111,36 @@ public class LocalFilterRegression<O,R,C> implements OnlineRegression<O,R,C>
         }
 
 
+    }
+
+
+    public void resetFilter(
+            Supplier<? extends OneDimensionalFilter> generator
+    ){
+        LinkedList<O> keys = new LinkedList<>(filters.keySet());
+        filters.clear();
+        for(O key : keys)
+            filters.put(key,generator.get());
+    }
+
+
+    /**
+     * Getter for property 'optionSimilarity'.
+     *
+     * @return Value for property 'optionSimilarity'.
+     */
+    @Nullable
+    public Similarity<O> getOptionSimilarity() {
+        return optionSimilarity;
+    }
+
+    /**
+     * Setter for property 'optionSimilarity'.
+     *
+     * @param optionSimilarity Value to set for property 'optionSimilarity'.
+     */
+    public void setOptionSimilarity(@Nullable Similarity<O> optionSimilarity) {
+        this.optionSimilarity = optionSimilarity;
     }
 
     /**

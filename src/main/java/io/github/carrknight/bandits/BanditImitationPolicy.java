@@ -2,6 +2,7 @@ package io.github.carrknight.bandits;
 
 
 import io.github.carrknight.Observation;
+import io.github.carrknight.heatmaps.BeliefState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,7 +23,7 @@ public interface BanditImitationPolicy<O,R,C> {
     @Nullable
     public Observation<O,R,C> decideOnAdditionalInformation(
             Observation<O,R,C> additionalInformation,
-            BanditState state
+            BeliefState<O,R,C> state
     );
 
 }

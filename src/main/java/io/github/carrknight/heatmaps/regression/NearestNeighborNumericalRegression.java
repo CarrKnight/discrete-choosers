@@ -17,7 +17,7 @@ public class NearestNeighborNumericalRegression implements NumericalRegression {
     private final KdTree<Double> nearestNeighborTree;
 
     /**
-     * divide each feature distance by this to reweight them.
+     * divide each feature similarity by this to reweight them.
      * Strictly speaking these are copies of the feature based distances, however we store them here
      * because it makes the whole regression object easier to tune!
      */
@@ -25,7 +25,7 @@ public class NearestNeighborNumericalRegression implements NumericalRegression {
 
 
     /**
-     * distance function between dimensions
+     * similarity function between dimensions
      */
     private final FeatureDistance transformer;
 
@@ -37,8 +37,8 @@ public class NearestNeighborNumericalRegression implements NumericalRegression {
 
 
     /**
-     * how do we judge the distance between two nodes (this object basically just adapts our distance function
-     * \to the distance function of the KD tree)
+     * how do we judge the similarity between two nodes (this object basically just adapts our similarity function
+     * \to the similarity function of the KD tree)
      */
     private DistanceFunction treeDistance;
 

@@ -3,6 +3,7 @@ package io.github.carrknight.bandits;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
+import io.github.carrknight.heatmaps.BeliefState;
 import io.github.carrknight.utils.BoltzmannDistribution;
 import io.github.carrknight.utils.RewardFunction;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.SplittableRandom;
 import java.util.function.Function;
 
-public class SoftmaxBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlgorithm<O,R> {
+public class SoftmaxBanditAlgorithm<O,R,C> extends AbstractBanditAlgorithm<O,R,C> {
 
     /**
      * the higher the more it will randomize rather than going for the top
@@ -26,7 +27,7 @@ public class SoftmaxBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlg
 
 
     public SoftmaxBanditAlgorithm(
-            @NotNull RewardFunction<O, R,Object> rewardExtractor, @NotNull O[] optionsAvailable, double initialExpectedReward,
+            @NotNull RewardFunction<O, R,C> rewardExtractor, @NotNull O[] optionsAvailable, double initialExpectedReward,
             SplittableRandom randomizer,
             double temperature,
             Function<Double, Double> temperatureUpdater) {
@@ -47,15 +48,16 @@ public class SoftmaxBanditAlgorithm<O,R> extends ContextUnawareAbstractBanditAlg
     @NotNull
     @Override
     protected O choose(
-            BanditState state, @NotNull BiMap<O, Integer> optionsAvailable,
-            @Nullable Observation<O, R, Object> lastObservation, O lastChoice) {
+            BeliefState<O, R, C> state, @NotNull BiMap<O, Integer> optionsAvailable,
+            @Nullable Observation<O, R, C> lastObservation, O lastChoice) {
 
-        assert state.getNumberOfOptions() == optionsAvailable.size();
         assert temperature>=1;
         //store memory of rewards into an array
-        double[] rewards = new double[state.getNumberOfOptions()];
+        double[] rewards = new double[optionsAvailable.size()];
         for(int i=0; i<rewards.length; i++)
-            rewards[i]=state.getAverageRewardObserved(i);
+            rewards[i]=state.predict(optionsAvailable.inverse().get(i),
+                                     lastObservation == null ? null : lastObservation.getContext()
+                                     );
         //now pick by softmax
         BoltzmannDistribution distribution = new BoltzmannDistribution(rewards, temperature);
 

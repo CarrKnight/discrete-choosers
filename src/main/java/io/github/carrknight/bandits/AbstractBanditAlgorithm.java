@@ -76,10 +76,17 @@ public abstract class AbstractBanditAlgorithm<O,R,C> implements Chooser<O, R, C>
 
                     O[] optionsAvailable, long randomSeed) {
 
-        this(rewardExtractor,
-             optionsAvailable,
-             0d,
-             new SplittableRandom(randomSeed));
+        this(
+                optionsAvailable,
+                new SplittableRandom(randomSeed),
+                //by default just keep separate memories for everything
+                new LocalFilterSpace<>(
+                        optionsAvailable,
+                        //by default use the standard average filter
+                        () -> new IterativeAverageFilter(0d),
+                        rewardExtractor,
+                        null
+                ));
 
 
     }
@@ -88,8 +95,8 @@ public abstract class AbstractBanditAlgorithm<O,R,C> implements Chooser<O, R, C>
 
 
     public AbstractBanditAlgorithm(
-            @NotNull RewardFunction<O,R,C > rewardExtractor, @NotNull O[] optionsAvailable,
-            double initialExpectedReward, SplittableRandom randomizer) {
+            @NotNull O[] optionsAvailable,
+            SplittableRandom randomizer, final LocalFilterSpace<O, R, C> banditState) {
         Preconditions.checkArgument(optionsAvailable.length>0,
                                     "Given no options!");
 
@@ -100,13 +107,7 @@ public abstract class AbstractBanditAlgorithm<O,R,C> implements Chooser<O, R, C>
 
         this.optionsAvailable = builder.build();
 
-        this.banditState = new LocalFilterSpace<>(
-                optionsAvailable,
-                //by default use the standard average filter
-                () -> new IterativeAverageFilter(initialExpectedReward),
-                rewardExtractor,
-                null
-        );
+        this.banditState = banditState;
 
         this.randomizer = randomizer;
         this.lastChoice = optionsAvailable[randomizer.nextInt(optionsAvailable.length)];

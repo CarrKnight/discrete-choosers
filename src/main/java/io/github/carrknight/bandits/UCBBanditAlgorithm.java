@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
 import io.github.carrknight.heatmaps.BeliefState;
+import io.github.carrknight.heatmaps.regression.LocalFilterSpace;
 import io.github.carrknight.utils.DiscreteChoosersUtilities;
 import io.github.carrknight.utils.RewardFunction;
+import io.github.carrknight.utils.averager.IterativeAverageFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,23 +33,26 @@ public class UCBBanditAlgorithm<O,R,C> extends AbstractBanditAlgorithm<O, R,C> {
             double maximumRewardExpected, double sigma) {
         super(
                 //scale all rewards to 0 - 1
-                new RewardFunction<O, R, C>() {
-                    @Override
-                    public double extractUtility(
-                            @NotNull O optionTaken, @NotNull R experimentResult, @Nullable C contextObject) {
-                        //rescales rewards between 0 and 1!
-                        double reward = rewardExtractor.extractUtility(optionTaken,
-                                                                       experimentResult,
-                                                                       contextObject);
-                        reward = Math.min(Math.max(reward, minimumRewardExpected), maximumRewardExpected);
-                        return (reward - minimumRewardExpected) / (maximumRewardExpected - minimumRewardExpected);
 
-                    }
-                }
+                optionsAvailable, randomizer, new LocalFilterSpace<>(
+                        optionsAvailable,
+                        //by default use the standard average filter
+                        () -> new IterativeAverageFilter(initialExpectedReward),
+                        new RewardFunction<O, R, C>() {
+                            @Override
+                            public double extractUtility(
+                                    @NotNull O optionTaken, @NotNull R experimentResult, @Nullable C contextObject) {
+                                //rescales rewards between 0 and 1!
+                                double reward = rewardExtractor.extractUtility(optionTaken,
+                                                                               experimentResult,
+                                                                               contextObject);
+                                reward = Math.min(Math.max(reward, minimumRewardExpected), maximumRewardExpected);
+                                return (reward - minimumRewardExpected) / (maximumRewardExpected - minimumRewardExpected);
 
-                ,
-
-                optionsAvailable, initialExpectedReward, randomizer);
+                            }
+                        },
+                        null
+                ));
         this.sigma = sigma;
     }
 
@@ -112,7 +117,7 @@ public class UCBBanditAlgorithm<O,R,C> extends AbstractBanditAlgorithm<O, R,C> {
                     ),
                     getRandomizer(),
                     Double.NEGATIVE_INFINITY
-            );
+            ).getKey();
             assert bestChoice != null;
             return bestChoice;
 

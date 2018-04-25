@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import io.github.carrknight.Observation;
 import io.github.carrknight.heatmaps.BeliefState;
+import io.github.carrknight.heatmaps.regression.LocalFilterSpace;
 import io.github.carrknight.utils.BoltzmannDistribution;
 import io.github.carrknight.utils.RewardFunction;
+import io.github.carrknight.utils.averager.IterativeAverageFilter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +33,13 @@ public class SoftmaxBanditAlgorithm<O,R,C> extends AbstractBanditAlgorithm<O,R,C
             SplittableRandom randomizer,
             double temperature,
             Function<Double, Double> temperatureUpdater) {
-        super(rewardExtractor, optionsAvailable, initialExpectedReward, randomizer);
+        super(optionsAvailable, randomizer, new LocalFilterSpace<>(
+                optionsAvailable,
+                //by default use the standard average filter
+                () -> new IterativeAverageFilter(initialExpectedReward),
+                rewardExtractor,
+                null
+        ));
         setTemperature(temperature);
         this.temperatureUpdater = temperatureUpdater;
     }

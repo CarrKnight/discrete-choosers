@@ -1,5 +1,7 @@
 package io.github.carrknight.utils;
 
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.SplittableRandom;
 import java.util.function.Function;
@@ -21,7 +23,7 @@ public class DiscreteChoosersUtilities {
      * @param <O> type of options
      * @return one of the top options or null if they are all below the minimum threshold
      */
-     static  public <O> O  getBestOption(
+     static  public <O> Pair<O,Double> getBestOption(
             Iterable<O> possibleOptions,
             Function<O,Double> fitnessOfOption,
             SplittableRandom randomizer,
@@ -35,7 +37,7 @@ public class DiscreteChoosersUtilities {
         for (O possibleOption : possibleOptions)
         {
             double reward =  fitnessOfOption.apply(possibleOption);
-            if(reward>currentMax)
+            if(Double.isFinite(reward) && reward>currentMax)
             {
                 candidates.clear();
                 candidates.add(possibleOption);
@@ -52,7 +54,9 @@ public class DiscreteChoosersUtilities {
         }
         else {
 
-            return candidates.get(randomizer.nextInt(candidates.size()));
+            return
+                    new Pair<>(candidates.get(randomizer.nextInt(candidates.size())),
+                               currentMax);
 
         }
     }

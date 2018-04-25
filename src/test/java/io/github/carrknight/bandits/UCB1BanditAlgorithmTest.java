@@ -2,7 +2,6 @@ package io.github.carrknight.bandits;
 
 import io.github.carrknight.utils.SimpleObservation;
 import io.github.carrknight.utils.averager.ExponentialMovingAverageFilter;
-import io.github.carrknight.utils.averager.ExponentialMovingAverager;
 import org.junit.Test;
 
 import java.util.Random;

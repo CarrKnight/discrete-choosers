@@ -1,13 +1,10 @@
 package io.github.carrknight.bandits;
 
-import io.github.carrknight.heatmaps.regression.OneDimensionalFilter;
 import io.github.carrknight.utils.SimpleObservation;
 import io.github.carrknight.utils.averager.ExponentialMovingAverageFilter;
-import io.github.carrknight.utils.averager.ExponentialMovingAverager;
 import org.junit.Test;
 
 import java.util.Random;
-import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 

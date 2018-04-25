@@ -62,7 +62,7 @@ public class ExploreExplotImitateState<O,R,C> {
                                                    observation.getResultObserved());
         }
 
-        //if we just played the same option (exploiting) then might just as well return now
+        //if we just played the same option (exploiting) then just update observed result
         if(observation.getChoiceMade()==favoriteOption)
             return new ExploreExplotImitateState<>(favoriteOption,
                                                    observation.getResultObserved());

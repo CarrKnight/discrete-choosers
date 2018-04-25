@@ -66,10 +66,12 @@ public class EpsilonGreedyBandit<O,R,C> extends AbstractBanditAlgorithm<O, R,C> 
 
             O bestOption = DiscreteChoosersUtilities.getBestOption(
                     optionsAvailable.keySet(),
-                    o -> state.predict(o,null),
+                    o -> state.predict(o,
+                                       lastObservation == null ? null : lastObservation.getContext()
+                    ),
                     getRandomizer(),
                     Double.NEGATIVE_INFINITY
-            );
+            ).getKey();
             assert bestOption != null;
             return
                     bestOption;

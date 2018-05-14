@@ -71,6 +71,7 @@ public abstract class FeatureBasedRegression<O,R,C> implements BeliefState<O, R,
         if(!NumericalRegression.isValidInput(x, y))
             return;
 
+
         observe(y, x);
     }
 

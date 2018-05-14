@@ -13,7 +13,7 @@ dependencies {
     //annotations
     compile group: 'com.intellij', name: 'annotations', version: '12.0'
     //guava. Useful for PreConditions and sometimes specialized collections
-    compile group: 'com.google.guava', name: 'guava', version: '11.0.2'
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
 
     //kd tree
     compile fileTree(dir: 'libs/rednaxela', include: '*.jar')
